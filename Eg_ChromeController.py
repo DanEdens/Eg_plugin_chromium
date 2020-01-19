@@ -175,12 +175,6 @@ class Text:
         description = 'Action Store Page'
 
 
-    class :
-        name = u''
-        description = 'Action '
-
-
-
 
 class Eg_plugin_chromium(eg.PluginBase):
     text = Text
@@ -214,7 +208,6 @@ class Eg_plugin_chromium(eg.PluginBase):
         self.AddAction(Pushd_Page)
         self.AddAction(Popd_Page)
         self.AddAction(Store_Page)
-        self.AddAction()
 
 
 
@@ -633,21 +626,6 @@ class Popd_Page(eg.ActionBase):
 
 
 class Store_Page(eg.ActionBase):
-
-    # this code gets executed when the action gets run
-    def __call__(self, *args):
-        pass
-
-    # this is where you would put the code for an action configuration dialog
-    def Configure(self, *args):
-        text = self.text
-        panel = eg.ConfigPanel()
-
-        while panel.Affirmed():
-            panel.SetResult()
-
-
-class (eg.ActionBase):
 
     # this code gets executed when the action gets run
     def __call__(self, *args):
