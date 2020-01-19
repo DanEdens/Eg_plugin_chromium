@@ -1,203 +1,640 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of EventGhost.
+# Copyright © 2005-2020 EventGhost Project <http://www.eventghost.org/>
+#
+# EventGhost is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 2 of the License, or (at your option)
+# any later version.
+#
+# EventGhost is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with EventGhost. If not, see <http://www.gnu.org/licenses/>.
 
-from pyppeteer import launch
-import os
-import sys
-import asyncio
-from env import creds
+import eg
 
-pages = []
-project_Locations = []
+eg.RegisterPlugin(
+    name=u'Eg_plugin_chromium',
+    author=u'Dan Edens',
+    version=u'0.0.1a',
+    description=(
+        u'Eventghost wrapper for Pyppeteer.\n'
+        u'https://github.com/miyakogi/pyppeteer\n'
+        u'\n
+    ),
+    kind=u'program',
+    url=u'https://github.com/DanEdens/Eg_plugin_chromium',
+    help=u'Please constact me with questions at Dan.Edens@Geo-instruments.com',
+    canMultiLoad=False,
+    createMacrosOnAdd=False,
+    guid=u'{B8B58BA0-BEB7-4324-AB68-564427D72B53}',
+    hardwareId=u'',
+    icon=None
+)
 
-# Launch a new headed brower
-async def head_browser():
-    return await launch({"headless": False})
 
-# Launch a new headless brower
-async def headless_browser():
-    return await launch({"headless": True})
 
-# Create a new page and load argument url
-async def new_page(browser, url):
-    page = await browser.newPage()
-    await page.goto(url)
-    return page
 
-#Query url than load on current page
-async def goto_url(browser, page, url):
-    await page.goto(url)
-    return page
 
-# Focus page tab by index
-async def use_index_page(page, index):
-    #page = pages[index]
-    return page
+class Text:
+    # add variables with string that you want to be able to have translated
+    # using the language editor in here
 
-# Focus page tab by name
-async def use_name_page(page, name):
-    #page = pagewithname
-    return page
+    class Launch_Browser:
+        name = u'Launch Browser'
+        description = 'Action Launch Browser'
 
-# Give current page a name
-async def set_name_page(page, name):
-    #pagewithname.index =index(name) or something
-    return page
 
-# Closes current page
-async def close_page(page):
-    await page.close()
+    class New_Page:
+        name = u'New Page'
+        description = 'Action New Page'
 
-# basically page.setviewport() with defaults for my sites
-async def set_size_page(page):
-    set
 
-# Save a screenshot of current page saved at '_screenshot_path'
-async def screenshot_page(page):
-    return page
+    class Goto_Url:
+        name = u'Goto Url'
+        description = 'Action Goto Url'
 
-# Make a copy of the current page
-async def split_page(browser, page):
-    page2 = await browser.newPage()
-    await page2.goto_url(page.url)
-    return page2
 
-# Save current session of tabs
-async def save_session(browser, session_id):
-    # print(browser.pages, 'session_id.tabs')
-	pass
+    class Focus_Page:
+        name = u'Focus Page'
+        description = 'Action Focus Page'
 
-# Load current session of tabs
-async def load_session(browser, session_id):
-    # data = data from file
-    # if data.head:
-	    # session = head_browser()
-    # else:
-    	# session = headless_browser()
-    # for page in data.pagelist:
-		# pagelist.append(await session.newPage())
-    # return pagelist
-    pass
 
-# Tools for site logins
-class Logins(self):
-	# Create new page and log into Amp
-    async def login_amp(self):
+    class Close_Page:
+        name = u'Close Page'
+        description = 'Action Close Page'
+
+
+    class Split_Page:
+        name = u'Split Page'
+        description = 'Action Split Page'
+
+
+    class Set_Page_Name:
+        name = u'Set Page Name'
+        description = 'Action Set Page Name'
+
+
+    class Set_Page_Size:
+        name = u'Set Page Size'
+        description = 'Action Set Page Size'
+
+
+    class Save_Session:
+        name = u'Save Session'
+        description = 'Action Save Session'
+
+
+    class Load_Session:
+        name = u'Load Session'
+        description = 'Action Load Session'
+
+
+    class Login:
+        name = u'Login'
+        description = 'Action Login'
+
+
+    class Scrape_Page:
+        name = u'Scrape Page'
+        description = 'Action Scrape Page'
+
+
+    class Scrape_Site:
+        name = u'Scrape Site'
+        description = 'Action Scrape Site'
+
+
+    class Screenshot_Page:
+        name = u'Screenshot Page'
+        description = 'Action Screenshot Page'
+
+
+    class Screenshot_Pages:
+        name = u'Screenshot Pages'
+        description = 'Action Screenshot Pages'
+
+
+    class Clean_Up:
+        name = u'Clean Up'
+        description = 'Action Clean Up'
+
+
+    class Click_Item:
+        name = u'Click Item'
+        description = 'Action Click Item'
+
+
+    class Focus_Item:
+        name = u'Focus Item'
+        description = 'Action Focus Item'
+
+
+    class Bookmark_Page:
+        name = u'Bookmark Page'
+        description = 'Action Bookmark Page'
+
+
+    class Open_New_Browser_Context:
+        name = u'Open New Browser Context'
+        description = 'Action Open New Browser Context'
+
+
+    class Focus_Browser_Context:
+        name = u'Focus Browser Context'
+        description = 'Action Focus Browser Context'
+
+
+    class Pushd_Browser_Context:
+        name = u'Pushd Browser Context'
+        description = 'Action Pushd Browser Context'
+
+
+    class Popd_Browser_Context:
+        name = u'Popd Browser Context'
+        description = 'Action Popd Browser Context'
+
+
+    class Pushd_Page:
+        name = u'Pushd Page'
+        description = 'Action Pushd Page'
+
+
+    class Popd_Page:
+        name = u'Popd Page'
+        description = 'Action Popd Page'
+
+
+    class Store_Page:
+        name = u'Store Page'
+        description = 'Action Store Page'
+
+
+
+class Eg_plugin_chromium(eg.PluginBase):
+    text = Text
+
+    # you want to add any variables that can be access from anywhere inside of
+    # your plugin here
+    def __init__(self):
+        self.AddAction(Launch_Browser)
+        self.AddAction(New_Page)
+        self.AddAction(Goto_Url)
+        self.AddAction(Focus_Page)
+        self.AddAction(Close_Page)
+        self.AddAction(Split_Page)
+        self.AddAction(Set_Page_Name)
+        self.AddAction(Set_Page_Size)
+        self.AddAction(Save_Session)
+        self.AddAction(Load_Session)
+        self.AddAction(Login)
+        self.AddAction(Scrape_Page)
+        self.AddAction(Scrape_Site)
+        self.AddAction(Screenshot_Page)
+        self.AddAction(Screenshot_Pages)
+        self.AddAction(Clean_Up)
+        self.AddAction(Click_Item)
+        self.AddAction(Focus_Item)
+        self.AddAction(Bookmark_Page)
+        self.AddAction(Open_New_Browser_Context)
+        self.AddAction(Focus_Browser_Context)
+        self.AddAction(Pushd_Browser_Context)
+        self.AddAction(Popd_Browser_Context)
+        self.AddAction(Pushd_Page)
+        self.AddAction(Popd_Page)
+        self.AddAction(Store_Page)
+
+
+
+    # you will want to add any startup parameters and also run any startup code
+    # here
+    def __start__(self, *args):
         pass
 
-	# Create new page and log into qv
-    async def login_qv(self):
+    # this gets called when eg is being closed and you can run code when that
+    # happens
+    def __close__(self):
         pass
 
-	# Create new page and log into Certify
-    async def login_certify(self):
+    # this gets called as well when EG closes but it also gets called when a
+    # plugin gets disabled. This is where you will do things like close any
+    # open sockets
+    def __stop__(self):
         pass
 
-	# Create new page and log into Keller
-    async def login_keller(self):
+    # You will replace the code in this method if you want to make a plugin
+    # configuration dialog.
+    def Configure(self, *args):
+
+        eg.PluginBase.Configure(self, *args)
+
+
+    # The next 2 are pretty self explanatory
+    def OnComputerResume(self):
         pass
 
-	# Create new page and log into Vortex
-    async def login_vortex(self):
+    def OnComputerSuspend(self):
         pass
 
-	# Create new page and log into Gmail
-    async def login_gmail(self):
-        pass
-
-
-class dailys():
-    def __init__(self, page):
-        self.page = page
-
-    async def weather_update(self):
-          #scrape various weather data
-        for location in project_Locations:
-            self.page.goto(location.url)
-
-class tool():
-	def __init__(self, browser, page, data):
-		self.page = page
-		self.browser = browser
-		self.data = data
-
-	def save_note(self):
-		# notefile.write('data: ' + self.data + 'page: ' + self.page)
-		pass
-
-class qv_tool():
-	def __init__(self, browser, page, data, sensor_info):
-		self.page = page
-		self.browser = browser
-		self.data = data
-
-	# Change Quickviews Current View
-    async def goto_view(self):
-        pass
-
-	# Navigate to pdf reports page
-	async def goto_reports(self):
-		pass
-
-	# Navigate to data sources page
-	async def goto_datasource(self):
-		pass
-
-	# Navigate to log book journal
-	async def goto_journal(self):
-		pass
-
-	# scrape whatever is avaible from current job site
-    async def scrape_site(self):
-        pass
-
-	# scrape whatever is avaible from current page
-    async def scrape_page(self):
+    # This gets called when a plugin gets deleted from the tree. so here if
+    # you use eg.PersistantData to store any data. that data needs to be
+    # deleted when the plugin gets removed. this is where that gets done.
+    def OnDelete(self):
         pass
 
 
-# Preset options for running data through image magick
-class mkgif():
-	def __init__(self, page, data, sensor_info):
-		self.page = page
-		self.data = data
-		self.sensor_id = sensor_info[0]
-		self.sensor_type = sensor_info[1]
-		self.sensor_daterange = sensor_info[2]
 
-	# Open new gif after rendering
-	def show_file_when_done(self):
-		pass
 
-	# Render gathered Images as gif
-	def render(self):
-		pass
+class Launch_Browser(eg.ActionBase):
 
-	# set gif speed
-	def set_speed(self):
-		pass
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
 
-	# set gif loop value
-	def set_loop(self):
-		pass
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
 
-	# This will assist with gathering screenshots of SAA data for gif creation
-	async def take_incremental_screenshot(self):
-		# mkdir screenshotfolder
-		# query
-		# open up target sensor
-		# screenshot
-		# align_next_day
-		#
-		# screenshotfolder/screenshot, move date back day/week, repeat.
-		pass
+        while panel.Affirmed():
+            panel.SetResult()
 
-	# navigate to target sensors first requested date
-	async def align_first_day(self):
-		pass
 
-	# navigate to target sensors next requested date
-	async def align_next_day(self):
-		pass
+class New_Page(eg.ActionBase):
 
-	# Delete temporary files created while assembling gif
-	async def clean_up(self):
-		pass
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Goto_Url(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Focus_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Close_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Split_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Set_Page_Name(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Set_Page_Size(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Save_Session(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Load_Session(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Login(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Scrape_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Scrape_Site(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Screenshot_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Screenshot_Pages(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Clean_Up(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Click_Item(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Focus_Item(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Bookmark_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Open_New_Browser_Context(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Focus_Browser_Context(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Pushd_Browser_Context(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Popd_Browser_Context(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Pushd_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Popd_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+
+class Store_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
