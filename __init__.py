@@ -47,132 +47,137 @@ class Text:
 
     class Launch_Browser:
         name = u'Launch Browser'
-        description = 'Action Launch Browser'
+        description = 'Laumch a new Browser Defualt Context'
 
 
     class New_Page:
         name = u'New Page'
-        description = 'Action New Page'
+        description = 'Create a new page in arg(context))'
 
 
     class Goto_Url:
         name = u'Goto Url'
-        description = 'Action Goto Url'
+        description = 'load arg(url) on arg(page)'
 
 
     class Focus_Page:
         name = u'Focus Page'
-        description = 'Action Focus Page'
+        description = 'Focus on arg(page). Will support Index and Page Name'
 
 
     class Close_Page:
         name = u'Close Page'
-        description = 'Action Close Page'
+        description = 'Close arg(page)'
 
 
     class Split_Page:
         name = u'Split Page'
-        description = 'Action Split Page'
+        description = 'Open a new Page at same url as arg(page)'
 
 
     class Set_Page_Name:
         name = u'Set Page Name'
-        description = 'Action Set Page Name'
+        description = 'Set arg(page) to arg(name)'
 
 
     class Set_Page_Size:
         name = u'Set Page Size'
-        description = 'Action Set Page Size'
+        description = 'Setviewport on arg(page)'
 
 
     class Save_Session:
         name = u'Save Session'
-        description = 'Action Save Session'
+        description = 'Save pages in arg(context) as arg(session)'
 
 
     class Load_Session:
         name = u'Load Session'
-        description = 'Action Load Session'
+        description = 'Launch new context with pages saved to arg(session)'
 
 
     class Login:
         name = u'Login'
-        description = 'Action Login'
+        description = 'Navigate focused page to arg(url) and search for login selectors'
 
 
     class Scrape_Page:
         name = u'Scrape Page'
-        description = 'Action Scrape Page'
+        description = 'Scan focused page if not arg(page), and save data matching config patterns'
 
 
     class Scrape_Site:
         name = u'Scrape Site'
-        description = 'Action Scrape Site'
+        description = 'Scan focused page if not arg(page), than navigate through nearby links and save data matching config patterns'
 
 
     class Screenshot_Page:
         name = u'Screenshot Page'
-        description = 'Action Screenshot Page'
+        description = 'Saves Screenshot of Focused page if not arg(page)'
 
 
     class Screenshot_Pages:
         name = u'Screenshot Pages'
-        description = 'Action Screenshot Pages'
+        description = 'Saves Screenshots of focused page if not arg(page), than navigate through nearby pages and save arg(number) of Screenshots \\nThis is geared towards Websites configured for specfic data'
 
 
     class Clean_Up:
         name = u'Clean Up'
-        description = 'Action Clean Up'
+        description = 'Clean up Temp files not refered by active contexts. \\nThis is particularly useful when generating Gifs from timelapsed data feeds'
 
 
     class Click_Item:
         name = u'Click Item'
-        description = 'Action Click Item'
+        description = 'Click on arg(instance) of arg(text) on focused if not arg(page)'
 
 
     class Focus_Item:
         name = u'Focus Item'
-        description = 'Action Focus Item'
+        description = 'Move cursor to arg(instance) of arg(text) on focused if not arg(page)'
 
 
     class Bookmark_Page:
         name = u'Bookmark Page'
-        description = 'Action Bookmark Page'
+        description = 'Save url of arg(page) to bookmarks.arg(name)'
 
 
     class Open_New_Browser_Context:
         name = u'Open New Browser Context'
-        description = 'Action Open New Browser Context'
+        description = 'Create a new Browser Context other than Default'
 
 
     class Focus_Browser_Context:
         name = u'Focus Browser Context'
-        description = 'Action Focus Browser Context'
+        description = 'Focus on arg(context) w/ option to focus arg(context.page)'
 
 
     class Pushd_Browser_Context:
         name = u'Pushd Browser Context'
-        description = 'Action Pushd Browser Context'
+        description = 'Save ID of focused if not arg(context) and change to arg(new_context)'
 
 
     class Popd_Browser_Context:
         name = u'Popd Browser Context'
-        description = 'Action Popd Browser Context'
+        description = 'Return Focus to Saved ID of Pushd Context. Will change focus to Default context, if pushd not set.'
 
 
     class Pushd_Page:
         name = u'Pushd Page'
-        description = 'Action Pushd Page'
+        description = 'Save ID of focused if not arg(page) and change to arg(new_page)'
 
 
     class Popd_Page:
         name = u'Popd Page'
-        description = 'Action Popd Page'
+        description = 'Return Focus to Saved ID of Pushd Context. Will change focus to Default context, if pushd not set.'
 
 
     class Store_Page:
         name = u'Store Page'
-        description = 'Action Store Page'
+        description = 'Limit Resource use by storing *arg(page) in templist.'
+
+
+    class Restore_Pagelist:
+        name = u'Store Page'
+        description = 'Restore pages to arg(context) stored in templist.'
 
 
 
@@ -208,6 +213,7 @@ class Eg_plugin_chromium(eg.PluginBase):
         self.AddAction(Pushd_Page)
         self.AddAction(Popd_Page)
         self.AddAction(Store_Page)
+        self.AddAction(Restore_Page)
 
 
 
@@ -236,33 +242,45 @@ class Eg_plugin_chromium(eg.PluginBase):
 
     # The next 2 are pretty self explanatory
     def OnComputerResume(self):
+        # launch
+        # load sessions from eg.PersistantData
         pass
 
     def OnComputerSuspend(self):
+        # Save temp session to eg.PersistantData
+        # Close default context
         pass
 
     # This gets called when a plugin gets deleted from the tree. so here if
     # you use eg.PersistantData to store any data. that data needs to be
     # deleted when the plugin gets removed. this is where that gets done.
     def OnDelete(self):
+        # clear all eg.PersistantData
         pass
 
 
 
 
 class Launch_Browser(eg.ActionBase):
-
+    def __init__(self, head, session, *args):
+        self.head = head
+        self.session = session
     # this code gets executed when the action gets run
     def __call__(self, *args):
+        if head:
+            return await launch({"headless": False})
+        else:
+            return await launch({"headless": True})
+
+        while panel.Affirmed():
+            panel.SetResult()
+
         pass
 
     # this is where you would put the code for an action configuration dialog
     def Configure(self, *args):
         text = self.text
         panel = eg.ConfigPanel()
-
-        while panel.Affirmed():
-            panel.SetResult()
 
 
 class New_Page(eg.ActionBase):
@@ -626,6 +644,20 @@ class Popd_Page(eg.ActionBase):
 
 
 class Store_Page(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+
+        while panel.Affirmed():
+            panel.SetResult()
+
+class Restore_Page(eg.ActionBase):
 
     # this code gets executed when the action gets run
     def __call__(self, *args):
