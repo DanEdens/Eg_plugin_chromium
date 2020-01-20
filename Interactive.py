@@ -116,7 +116,7 @@ class Alarm_Investior():
       self.timestamp = timestamp
 
     def launch(self):
-        self.page await Logins.login_amp(page,'captiolcomplex')
+        self.page = await Logins.login_amp(creds.user, creds.password, page,'captiolcomplex')
 
 
     def Open_plot_spread(self):
