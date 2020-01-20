@@ -63,43 +63,47 @@ async def split_page(browser, page):
 # Save current session of tabs
 async def save_session(browser, session_id):
     # print(browser.pages, 'session_id.tabs')
-	pass
+    pass
 
 # Load current session of tabs
 async def load_session(browser, session_id):
     # data = data from file
     # if data.head:
-	    # session = head_browser()
+        # session = head_browser()
     # else:
-    	# session = headless_browser()
+        # session = headless_browser()
     # for page in data.pagelist:
-		# pagelist.append(await session.newPage())
+        # pagelist.append(await session.newPage())
     # return pagelist
     pass
 
 # Tools for site logins
-class Logins(self):
-	# Create new page and log into Amp
+class Logins():
+    def __init__(self, user, password):
+      self.user = user
+      self.password = password
+
+    # Create new page and log into Amp
     async def login_amp(self):
         pass
 
-	# Create new page and log into qv
+    # Create new page and log into qv
     async def login_qv(self):
         pass
 
-	# Create new page and log into Certify
+    # Create new page and log into Certify
     async def login_certify(self):
         pass
 
-	# Create new page and log into Keller
+    # Create new page and log into Keller
     async def login_keller(self):
         pass
 
-	# Create new page and log into Vortex
+    # Create new page and log into Vortex
     async def login_vortex(self):
         pass
 
-	# Create new page and log into Gmail
+    # Create new page and log into Gmail
     async def login_gmail(self):
         pass
 
@@ -114,90 +118,93 @@ class dailys():
             self.page.goto(location.url)
 
 class tool():
-	def __init__(self, browser, page, data):
-		self.page = page
-		self.browser = browser
-		self.data = data
+    def __init__(self, browser, page, data):
+        self.page = page
+        self.browser = browser
+        self.data = data
 
-	def save_note(self):
-		# notefile.write('data: ' + self.data + 'page: ' + self.page)
-		pass
-
-class qv_tool():
-	def __init__(self, browser, page, data, sensor_info):
-		self.page = page
-		self.browser = browser
-		self.data = data
-
-	# Change Quickviews Current View
-    async def goto_view(self):
+    def save_note(self):
+        # notefile.write('data: ' + self.data + 'page: ' + self.page)
         pass
 
-	# Navigate to pdf reports page
-	async def goto_reports(self):
-		pass
+class qv_tool():
+    def __init__(self, browser, page, data, project):
+        self.browser = browser
+        self.page = page
+        self.data = data
+        self.project = project
 
-	# Navigate to data sources page
-	async def goto_datasource(self):
-		pass
 
-	# Navigate to log book journal
-	async def goto_journal(self):
-		pass
+    # Change Quickviews Current View
+    async def goto_view(self, view):
+        pass
 
-	# scrape whatever is avaible from current job site
+    # Navigate to pdf reports page
+    async def goto_reports(self):
+        pass
+
+    # Navigate to data sources page
+    async def goto_datasource(self):
+        pass
+
+    # Navigate to log book journal
+    async def goto_journal(self):
+        pass
+
+    # scrape whatever is avaible from current job site
     async def scrape_site(self):
         pass
 
-	# scrape whatever is avaible from current page
+    # scrape whatever is avaible from current page
     async def scrape_page(self):
         pass
 
 
 # Preset options for running data through image magick
 class mkgif():
-	def __init__(self, page, data, sensor_info):
-		self.page = page
-		self.data = data
-		self.sensor_id = sensor_info[0]
-		self.sensor_type = sensor_info[1]
-		self.sensor_daterange = sensor_info[2]
+    def __init__(self, page, data, sensor_info):
+        self.page = page
+        self.data = data
+        self.sensor_id = sensor_info[0]
+        self.sensor_type = sensor_info[1]
+        self.sensor_daterange = sensor_info[2]
 
-	# Open new gif after rendering
-	def show_file_when_done(self):
-		pass
+    # Open new gif after rendering
+    def show_file_when_done(self):
+        pass
 
-	# Render gathered Images as gif
-	def render(self):
-		pass
+    # Render gathered Images as gif
+    def render(self):
+        pass
 
-	# set gif speed
-	def set_speed(self):
-		pass
+    # set gif speed
+    def set_speed(self):
+        pass
 
-	# set gif loop value
-	def set_loop(self):
-		pass
+    # set gif loop value
+    def set_loop(self):
+        pass
 
-	# This will assist with gathering screenshots of SAA data for gif creation
-	async def take_incremental_screenshot(self):
-		# mkdir screenshotfolder
-		# query
-		# open up target sensor
-		# screenshot
-		# align_next_day
-		#
-		# screenshotfolder/screenshot, move date back day/week, repeat.
-		pass
+    # This will assist with gathering screenshots of SAA data for gif creation
+    async def take_incremental_screenshot(self):
+        # mkdir screenshotfolder
+        # query
+        # open up target sensor
+        # screenshot
+        # align_next_day
+        #
+        # screenshotfolder/screenshot, move date back day/week, repeat.
+        pass
 
-	# navigate to target sensors first requested date
-	async def align_first_day(self):
-		pass
+    # navigate to target sensors first requested date
+    def align_first_day(self):
+        pass
 
-	# navigate to target sensors next requested date
-	async def align_next_day(self):
-		pass
+    # navigate to target sensors next requested date
+    def align_next_day(self):
+        pass
 
-	# Delete temporary files created while assembling gif
-	async def clean_up(self):
-		pass
+    # Delete temporary files created while assembling gif
+    async def clean_up(self):
+        #Search and Del variables available from pyppeteers doc
+        pass
