@@ -124,7 +124,7 @@ class tool():
         self.data = data
 
     def save_note(self):
-        # notefile.write('data: ' + self.data + 'page: ' + self.page)
+        # print('data: ' + self.data + 'page: ' + self.page, '/output/Notes.txt')
         pass
 
 class qv_tool():
@@ -198,13 +198,21 @@ class mkgif():
 
     # navigate to target sensors first requested date
     def align_first_day(self):
+        # select target sensor
+        # open plot
+        # Navigate to start date
+        # Begin screenshot, next day loop
         pass
 
     # navigate to target sensors next requested date
     def align_next_day(self):
+        # Navigate plot to next date
         pass
 
     # Delete temporary files created while assembling gif
     async def clean_up(self):
-        #Search and Del variables available from pyppeteers doc
+        # Search and Del variables available from pyppeteers doc
+        # archive screenshots and delete mkgif working directorys
         pass
+
+
