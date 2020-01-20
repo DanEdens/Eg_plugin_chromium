@@ -267,7 +267,7 @@ class Launch_Browser(eg.ActionBase):
         self.session = session
     # this code gets executed when the action gets run
     def __call__(self, *args):
-        if head:
+        if self.head:
             return await launch({"headless": False})
         else:
             return await launch({"headless": True})
