@@ -1,0 +1,522 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of EventGhost.
+# Copyright © 2005-2016 EventGhost Project <http://www.eventghost.org/>
+#
+# EventGhost is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 2 of the License, or (at your option)
+# any later version.
+#
+# EventGhost is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with EventGhost. If not, see <http://www.gnu.org/licenses/>.
+
+import wx
+from comtypes import GUID
+
+
+REGISTER_PLUGIN = '''# -*- coding: utf-8 -*-
+#
+# This file is part of EventGhost.
+# Copyright © 2005-2016 EventGhost Project <http://www.eventghost.org/>
+#
+# EventGhost is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 2 of the License, or (at your option)
+# any later version.
+#
+# EventGhost is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with EventGhost. If not, see <http://www.gnu.org/licenses/>.
+
+import eg
+
+eg.RegisterPlugin(
+{RegisterPlugin}
+)
+
+
+{ThreadClass}
+
+
+class Text:
+    # add variables with string that you want to be able to have translated
+    # using the language editor in here
+    {ActionText}
+
+
+class {PluginName}(eg.PluginBase):
+    text = Text
+
+    # you want to add any variables that can be access from anywhere inside of
+    # your plugin here
+    def __init__(self):
+        {AddAction}
+        {ThreadInit}
+    
+    # you will want to add any startup parameters and also run any startup code
+    # here
+    def __start__(self, *args):
+        {ThreadStart}
+    
+    # this gets called when eg is being closed and you can run code when that
+    # happens
+    def __close__(self):
+        pass
+        
+    # this gets called as well when EG closes but it also gets called when a
+    # plugin gets disabled. This is where you will do things like close any
+    # open sockets
+    def __stop__(self):
+        {ThreadStop}
+        
+    # You will replace the code in this method if you want to make a plugin
+    # configuration dialog.
+    def Configure(self, *args):
+        eg.PluginBase.Configure(self, *args)
+
+    
+    # The next 2 are pretty self explanatory
+    def OnComputerResume(self):
+        pass
+    
+    def OnComputerSuspend(self):
+        pass
+    
+    # This gets called when a plugin gets deleted from the tree. so here if
+    # you use eg.PersistantData to store any data. that data needs to be
+    # deleted when the plugin gets removed. this is where that gets done.
+    def OnDelete(self):
+        pass
+
+{ActionClass}
+'''
+
+KIND_CHOICES = [
+    'other',
+    'remote',
+    'external',
+    'program'
+]
+
+
+add_action = 'self.AddAction(%s)'
+
+action_text = '''
+    class %s:
+        name = %r
+        description = 'Action %s'
+'''
+
+action_class = '''
+
+class %s(eg.ActionBase):
+
+    # this code gets executed when the action gets run
+    def __call__(self, *args):
+        pass
+        
+    # this is where you would put the code for an action configuration dialog
+    def Configure(self, *args):
+        text = self.text
+        panel = eg.ConfigPanel()
+        
+        while panel.Affirmed():
+            panel.SetResult()
+'''
+
+
+thread_stop = 'self.plugin_thread.stop()'
+thread_init = 'self.plugin_thread = ThreadClass(self)'
+thread_start = 'self.plugin_thread.start(*args)'
+thread_class = '''
+import threading # NOQA
+
+
+class ThreadClass(object):
+    def __init__(self, plugin):
+        self.event = threading.Event()
+        self.plugin = plugin
+        self.args = None
+        self.thread = None
+        
+    def start(self, *args):
+        if self.thread is None:
+            self.args = args
+            self.thread = threading.Thread(name=__name__, target=self.run)
+            
+    def run(self):
+        self.event.clear()
+        while not self.event.isSet():
+            # do your code here
+            # if you need to wait use
+            # self.event.wait(seconds)
+            pass
+            
+        self.thread = None
+        
+    def stop(self):
+        if self.thread is not None:
+            self.event.set()
+            self.thread.join(3)
+'''
+
+
+def PrettyPythonPrint(attrName, attrValue):
+    types = (unicode, str)
+
+    line = '    %s=' % attrName
+    multiLine = len(line + repr(attrValue)) > 76
+
+    if type(attrValue) in types and multiLine:
+        newAttrValue = ()
+        while attrValue:
+            jump = min([len(attrValue), 67])
+            value = attrValue[:jump]
+            if '\n' in value:
+                jump = value.find('\n') + 1
+            elif value.endswith('.') or value.endswith(' '):
+                pass
+            elif ' ' in value:
+                jump = value.rfind(' ') + 1
+
+            newAttrValue += (attrValue[:jump],)
+            attrValue = attrValue[jump:]
+        attrValue = newAttrValue
+
+        line += '(\n'
+        for item in attrValue:
+            line += '        %r\n' % item
+        line = line[:-2] + '\n' + '    ),\n'
+    else:
+        line += '%r,\n' % attrValue
+
+    return line
+
+
+class StringFloatRange(str):
+
+    def __init__(self, x, y, jump):
+        str.__init__(x)
+
+    def __new__(cls, x, y, jump):
+        if jump < 0:
+            while x > y:
+                yield str.__new__(cls, format(x, '.1f'))
+                x += jump
+        else:
+            while x < y:
+                yield str.__new__(cls, format(x, '.1f'))
+                x += jump
+
+VERSION_CHOICES = list(item for item in StringFloatRange(0.1, 10.0, 0.1))
+
+
+def EqualizeWidths(*ctrls):
+    maxWidth = max((ctrl.GetBestSize()[0] for ctrl in ctrls))
+    for ctrl in ctrls:
+        ctrl.SetMinSize((maxWidth, -1))
+
+
+class Frame(wx.Frame):
+
+    ctrl = None
+    frame = None
+
+    def __init__(self):
+
+        width = 80 * 6
+
+        guid = str(GUID.create_new())
+
+        wx.Frame.__init__(
+            self,
+            None,
+            size=((width + 50) * 2, 850),
+            title='Register Plugin Generator'
+        )
+
+        nameSt = wx.StaticText(self, -1, 'Name:')
+        nameCtrl = wx.TextCtrl(self, -1, '')
+        authorSt = wx.StaticText(self, -1, 'Author:')
+        authorCtrl = wx.TextCtrl(self, -1, '')
+        versionSt = wx.StaticText(self, -1, 'Version:')
+        versionCtrl = wx.Choice(self, -1, choices=VERSION_CHOICES)
+        verAlphaSt = wx.StaticText(self, -1, 'Alpha:')
+        verAlphaCtrl = wx.CheckBox(self, -1, '', name='a')
+        verBetaSt = wx.StaticText(self, -1, 'Beta:')
+        verBetaCtrl = wx.CheckBox(self, -1, '', name='b')
+        descSt = wx.StaticText(self, -1, 'Description')
+        descCtrl = wx.TextCtrl(self, -1, '', style=wx.TE_MULTILINE, size=(width, 200))
+        helpSt = wx.StaticText(self, -1, 'Help')
+        helpCtrl = wx.TextCtrl(self, -1, '', style=wx.TE_MULTILINE, size=(width, 200))
+        urlSt = wx.StaticText(self, -1, 'URL:')
+        urlCtrl = wx.TextCtrl(self, -1, '')
+        hardwareSt = wx.StaticText(self, -1, 'Hardware Id\'s')
+        hardwareCtrl = wx.TextCtrl(self, -1, '', style=wx.TE_MULTILINE, size=(width, 200))
+        kindSt = wx.StaticText(self, -1, 'Kind:')
+        kindCtrl = wx.Choice(self, -1, choices=KIND_CHOICES)
+        guidSt = wx.StaticText(self, -1, 'GUID:')
+        guidCtrl = wx.TextCtrl(self, -1, guid, style=wx.TE_READONLY, size=(len(guid) * 7, 20))
+        macroSt = wx.StaticText(self, -1, 'Create Macros:')
+        macroCtrl = wx.CheckBox(self, -1, '')
+        multiloadSt = wx.StaticText(self, -1, 'Can Multiload:')
+        multiloadCtrl = wx.CheckBox(self, -1, '')
+
+        iconSt = wx.StaticText(self, -1, 'Icon')
+        iconCtrl = wx.TextCtrl(self, -1, 'None', style=wx.TE_MULTILINE, size=(width, 164))
+        iconBaseSt = wx.StaticText(self, -1, 'Encode Icon:')
+        iconBaseCtrl = wx.CheckBox(self, -1, '')
+
+        action_st = wx.StaticText(self, -1, 'Action Names (comma separated):')
+        action_ctrl = wx.TextCtrl(self, -1, '')
+
+        thread_st = wx.StaticText(self, -1, 'Add threading class: ')
+        thread_ctrl = wx.CheckBox(self)
+
+        EqualizeWidths(
+            verAlphaSt,
+            verBetaSt
+        )
+
+        EqualizeWidths(
+            nameSt,
+            authorSt,
+            versionSt,
+            descSt,
+            helpSt,
+            urlSt,
+            hardwareSt,
+            kindSt,
+            guidSt,
+            macroSt,
+            multiloadSt,
+            iconSt,
+            iconBaseSt
+        )
+
+        kindCtrl.SetSelection(0)
+        versionCtrl.SetSelection(0)
+        verAlphaCtrl.SetValue(False)
+        verBetaCtrl.SetValue(False)
+        macroCtrl.SetValue(True)
+        multiloadCtrl.SetValue(False)
+
+        def OnChangeVer(evt):
+            char = evt.GetEventObject().GetName()
+
+            if not evt.GetInt():
+                char = ''
+
+            if char == 'a':
+                verBetaCtrl.SetValue(False)
+            else:
+                verAlphaCtrl.SetValue(False)
+
+            verChoices = list(ver + char for ver in VERSION_CHOICES[:])
+            value = versionCtrl.GetSelection()
+            versionCtrl.Clear()
+            versionCtrl.AppendItems(verChoices)
+            versionCtrl.SetSelection(value)
+            evt.Skip()
+
+        verAlphaCtrl.Bind(wx.EVT_CHECKBOX, OnChangeVer)
+        verBetaCtrl.Bind(wx.EVT_CHECKBOX, OnChangeVer)
+
+        verTypeSizer = wx.BoxSizer(wx.HORIZONTAL)
+        verTypeSizer.Add(verAlphaSt, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+        verTypeSizer.Add(verAlphaCtrl, 0, wx.EXPAND)
+        verTypeSizer.Add(verBetaSt, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+        verTypeSizer.Add(verBetaCtrl, 0, wx.EXPAND)
+
+        iconBaseSizer = wx.BoxSizer(wx.HORIZONTAL)
+        iconBaseSizer.Add(iconBaseSt, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+        iconBaseSizer.Add(iconBaseCtrl, 0, wx.EXPAND)
+
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        leftSizer = wx.BoxSizer(wx.VERTICAL)
+        middleSizer = wx.BoxSizer(wx.VERTICAL)
+        rightSizer = wx.BoxSizer(wx.VERTICAL)
+        leftMultiSizer = wx.BoxSizer(wx.VERTICAL)
+        rightMultiSizer = wx.BoxSizer(wx.VERTICAL)
+
+        def OnView(evt):
+            text = [
+                ('name', unicode(nameCtrl.GetValue())),
+                ('author', unicode(authorCtrl.GetValue())),
+                ('version', unicode(versionCtrl.GetStringSelection())),
+                ('description', unicode(descCtrl.GetValue())),
+                ('kind', unicode(kindCtrl.GetStringSelection())),
+                ('url', unicode(urlCtrl.GetValue())),
+                ('help', unicode(helpCtrl.GetValue())),
+                ('canMultiLoad',multiloadCtrl.GetValue()),
+                ('createMacrosOnAdd', macroCtrl.GetValue()),
+                ('guid', unicode(guidCtrl.GetValue())),
+                ('hardwareId', unicode(hardwareCtrl.GetValue())),
+                (
+                    'icon',
+                    unicode(iconCtrl.GetValue())
+                    if iconCtrl.GetValue() != 'None' else None
+                )
+            ]
+
+            actions = action_ctrl.GetValue()
+            if actions.strip():
+                addActions = ''
+                actionText = ''
+                actionClass = ''
+
+                for action in actions.split(','):
+                    action = action.title().strip()
+                    class_name = action.replace('-', '_').replace(' ', '_')
+                    addActions += add_action % class_name + '\n        '
+                    actionText += action_text % (class_name, action, action) + '\n    '
+                    actionClass += action_class % class_name
+            else:
+                addActions = 'pass'
+                actionText = 'pass'
+                actionClass = ''
+
+            if thread_ctrl.GetValue():
+                threadClass = thread_class
+                threadStart = thread_start
+                threadInit = thread_init
+                threadStop = thread_stop
+
+                if addActions == 'pass':
+                    addActions = ''
+            else:
+                threadClass = ''
+                threadStart = 'pass'
+                threadInit = ''
+                threadStop = 'pass'
+
+            formatted = dict(
+                ThreadClass=threadClass,
+                ThreadInit=threadInit,
+                ThreadStart=threadStart,
+                ThreadStop=threadStop,
+                ActionClass=actionClass,
+                ActionText=actionText,
+                AddAction=addActions,
+                RegisterPlugin=''.join(list(PrettyPythonPrint(*item) for item in text))[:-2],
+                PluginName=str(text[0][1]).replace('-', '').replace(' ', '').strip()
+            )
+
+            text = REGISTER_PLUGIN.format(**formatted)
+
+            if self.ctrl:
+                self.ctrl.SetValue(text)
+                self.frame.Show()
+                self.frame.Raise()
+            else:
+                width = 80 * 6
+                height = 17 * len(text.splitlines())
+                self.frame = wx.Frame(self, size=(width + 30, height + 30))
+                sizer = wx.BoxSizer(wx.HORIZONTAL)
+                self.ctrl = wx.TextCtrl(
+                    self.frame,
+                    -1,
+                    text,
+                    size=(width, height),
+                    style=wx.TE_MULTILINE | wx.TE_READONLY
+                )
+
+                def OnFrameClose(evt):
+                    self.frame = None
+                    self.ctrl = None
+                    evt.Skip()
+
+                self.frame.Bind(wx.EVT_CLOSE, OnFrameClose)
+                sizer.Add(self.ctrl, 0, wx.EXPAND | wx.ALL, 10)
+                self.frame.SetSizer(sizer)
+                self.frame.Show()
+
+            evt.Skip()
+
+        def OnClose(evt):
+            if self.frame:
+                self.frame.Show(False)
+                self.frame.Destroy()
+            self.Show(False)
+            self.Destroy()
+
+        closeButton = wx.Button(self, -1, 'Close')
+        viewButton = wx.Button(self, -1, 'View')
+        closeButton.Bind(wx.EVT_BUTTON, OnClose)
+        viewButton.Bind(wx.EVT_BUTTON, OnView)
+
+        bSizer = wx.StdDialogButtonSizer()
+        bSizer.Add(closeButton)
+        bSizer.Add(viewButton)
+        bSizer.Realize()
+
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+        buttonSizer.Add((3, 3), 1)
+        buttonSizer.Add(bSizer, 0, wx.TOP | wx.BOTTOM, 6)
+        buttonSizer.Add((3, 3), 0)
+
+        def LineSizer(sizer, *widgets):
+            lineSizer = wx.BoxSizer(wx.HORIZONTAL)
+            for i, widget in enumerate(widgets):
+                if i + 1 == len(widgets):
+                    args = (wx.EXPAND,)
+                else:
+                    args = (wx.EXPAND | wx.RIGHT, 20)
+                lineSizer.Add(widget, 0, *args)
+            sizer.Add(lineSizer, 0, wx.EXPAND | wx.ALL, 10)
+
+        def MultiSizer(sizer, widget1, widget2):
+            sizer.Add(widget1, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
+            sizer.Add(widget2, 0, wx.EXPAND | wx.ALL, 10)
+
+        LineSizer(leftSizer, nameSt, nameCtrl)
+        LineSizer(leftSizer, authorSt, authorCtrl)
+        LineSizer(leftSizer, kindSt, kindCtrl)
+
+        LineSizer(middleSizer, urlSt, urlCtrl)
+        LineSizer(middleSizer, versionSt, versionCtrl)
+        LineSizer(middleSizer, verTypeSizer)
+
+        LineSizer(rightSizer, guidSt, guidCtrl)
+        LineSizer(rightSizer, macroSt, macroCtrl)
+        LineSizer(rightSizer, multiloadSt, multiloadCtrl)
+
+        MultiSizer(leftMultiSizer, descSt, descCtrl)
+        MultiSizer(leftMultiSizer, helpSt, helpCtrl)
+        MultiSizer(rightMultiSizer, hardwareSt, hardwareCtrl)
+        MultiSizer(rightMultiSizer, iconSt, iconCtrl)
+        LineSizer(rightMultiSizer, iconBaseSizer)
+
+        LineSizer(mainSizer, leftSizer, middleSizer, rightSizer)
+        LineSizer(mainSizer, leftMultiSizer, rightMultiSizer)
+
+        option_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        option_sizer.Add(action_st, 0, wx.ALL, 5)
+        option_sizer.Add(action_ctrl, 1, wx.EXPAND | wx.ALL, 5)
+        mainSizer.Add(option_sizer, 0, wx.EXPAND)
+        option_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        option_sizer.Add(thread_st, 0, wx.ALL, 5)
+        option_sizer.Add(thread_ctrl, 0, wx.ALL, 5)
+        mainSizer.Add(option_sizer, 0, wx.EXPAND)
+        LineSizer(mainSizer, buttonSizer)
+
+        self.SetSizer(mainSizer)
+
+app = wx.App()
+
+frame = Frame()
+
+frame.Show()
+
+app.MainLoop()
