@@ -19,32 +19,31 @@ async def headless_browser():
 # Create a new page and load argument url
 async def new_page(browser, url):
     page = await browser.newPage()
-    await page.goto(url)
-    return page
+    return await page.goto(url)
 
 #Query url than load on current page
 async def goto_url(browser, page, url):
-    await page.goto(url)
-    return page
+    return await page.goto(url)
 
 # Focus page tab by index
-async def use_index_page(page, index):
-    #page = pages[index]
-    return page
+async def use_index_page(browser, index):
+    pages = browser.pages
+    return pages[index]
 
 # Focus page tab by name
-async def use_name_page(page, name):
-    #page = pagewithname
-    return page
+async def use_name_page(name):
+    # not sure if this is nessisary anymore. Are able to name.goto() etc
+    return name
 
 # Give current page a name
 async def set_name_page(page, name):
     #pagewithname.index =index(name) or something
+    # Needs method of keeping together. and being able to move tabs around while retaining name match
     return page
 
 # Closes current page
 async def close_page(page):
-    await page.close()
+    return await page.close()
 
 # basically page.setviewport() with defaults for my sites
 async def set_size_page(page):
