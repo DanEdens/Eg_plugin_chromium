@@ -3,7 +3,7 @@ from pyppeteer import launch
 import os
 import sys
 import asyncio
-from env import creds
+from env import sites, text, creds
 
 pages = []
 project_Locations = []
@@ -85,7 +85,19 @@ class Logins():
       self.project = project
 
     # Create new page and log into Amp
-    async def login_amp(self):
+    async def login_amp(self, url):
+        try:
+            await self.page.goto(self.url)
+        except: # ERR_ADDRESS_UNREACHABLE:
+            print('url error')
+        await self.page.waitFor(300)
+        await self.page.type(sites.amp.logincss, creds.username)
+        await self.page.waitFor(300)
+        await self.page.type(sites.amp.pwcss, creds.password)
+        await self.page.waitFor(300)
+        await self.page.click(sites.amp.loginbutton)
+        await self.page.waitFor(2000)
+        return self.page
         # self.page.goto(project+ampurlsuffix)
         pass
 
@@ -110,13 +122,16 @@ class Logins():
         pass
 
 class Alarm_Investior():
-    def __init__(self, page, axis, tiemstamp):
+    def __init__(self, browser, page, axis, tiemstamp):
+      self.browser = browser
       self.page = page
       self.axis = axis
       self.timestamp = timestamp
 
     def launch(self):
-        self.page = await Logins.login_amp(creds.user, creds.password, page,'captiolcomplex')
+        self.page = self.browser.newPage()
+        self.url = 'https://capitolcomplex.geo-instruments.com/index.php''
+        # await Logins.login_amp(creds.user, creds.password, page,'captiolcomplex')
 
 
     def Open_plot_spread(self):
