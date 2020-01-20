@@ -78,12 +78,15 @@ async def load_session(browser, session_id):
 
 # Tools for site logins
 class Logins():
-    def __init__(self, user, password):
+    def __init__(self, user, password, project):
+      self.page = page
       self.user = user
       self.password = password
+      self.project = project
 
     # Create new page and log into Amp
     async def login_amp(self):
+        # self.page.goto(project+ampurlsuffix)
         pass
 
     # Create new page and log into qv
@@ -106,6 +109,29 @@ class Logins():
     async def login_gmail(self):
         pass
 
+class Alarm_Investior():
+    def __init__(self, page, axis, tiemstamp):
+      self.page = page
+      self.axis = axis
+      self.timestamp = timestamp
+
+    def launch(self):
+        self.page await Logins.login_amp(page,'captiolcomplex')
+
+
+    def Open_plot_spread(self):
+        pass
+
+    def Open_plot_axis(self, axis):
+        pass
+
+    def Open_values(self):
+        pass
+
+    def Open_value_axis(self, axis):
+        pass
+
+    def Open_archive(self)
 
 class dailys():
     def __init__(self, page):
